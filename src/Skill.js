@@ -1,5 +1,13 @@
-function Skill({ name, modifier, modifierAmount, points, character }) {
+function Skill({
+  name,
+  modifier,
+  modifierAmount,
+  points,
+  onIncrease,
+  onDecrease,
+}) {
   const total = () => {
+    if (points === 0) return 0;
     return modifierAmount + points;
   };
 
@@ -7,8 +15,8 @@ function Skill({ name, modifier, modifierAmount, points, character }) {
     <>
       <p>
         {name} - points: {points}
-        <button onClick={() => {}}>+</button>
-        <button onClick={() => {}}>-</button>
+        <button onClick={onIncrease}>+</button>
+        <button onClick={onDecrease}>-</button>
         modifier ({modifier}): {modifierAmount} total: {total()}
       </p>
     </>

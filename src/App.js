@@ -8,11 +8,6 @@ import CharacterClass from "./CharacterClass.js";
 import Skill from "./Skill.js";
 
 function App() {
-  const [character, setCharacter] = useState({
-    attributes: {},
-    skills: {},
-  });
-
   const [points, setPoints] = useState(10);
 
   const [attributes, setAttributes] = useState({});
@@ -31,6 +26,7 @@ function App() {
       newAttributes[attribute] = 0;
     });
     setAttributes(newAttributes);
+    setPoints((curr) => curr + 4 * newAttributes["Intelligence"]);
     const newSkills = skillList.map((skill) => {
       return { ...skill, points: 0, total: 0 };
     });
@@ -43,6 +39,7 @@ function App() {
       ...attributes,
       [attribute]: attributes[attribute] + 1,
     });
+    setPoints(10 + 4 * (attributes["Intelligence"] + 1));
   }
 
   function decreaseAttribute(attribute) {
@@ -50,6 +47,15 @@ function App() {
       ...attributes,
       [attribute]: attributes[attribute] - 1,
     });
+    setPoints(10 + 4 * (attributes["Intelligence"] - 1));
+  }
+
+  function increasePoints() {
+    setPoints((curr) => curr + 1);
+  }
+
+  function decreasePoints() {
+    setPoints((curr) => curr + 1);
   }
 
   function decreaseSkill(skill) {
@@ -63,16 +69,16 @@ function App() {
       return currentSkill;
     });
     setSkills(newSkills);
-    setPoints(points - 1);
   }
 
   function increaseSkill(skill) {
     const newSkills = skills.map((currentSkill) => {
       if (currentSkill.name === skill.name) {
+        console.log("this is the skill being updated: ", currentSkill.name);
         return {
           ...currentSkill,
           points:
-            currentSkill.points + 1 >= 70
+            currentSkill.points + 1 < 70
               ? currentSkill.points + 1
               : currentSkill.points,
         };
@@ -80,7 +86,6 @@ function App() {
       return currentSkill;
     });
     setSkills(newSkills);
-    setPoints(points + 1);
   }
 
   function selectClass(className) {
@@ -101,10 +106,6 @@ function App() {
     return Math.floor((attributes[attribute] - 10) / 2);
   }
 
-  function totalPoints() {
-    return 10 + 4 * modifier("Intelligence");
-  }
-
   return (
     <div className="App">
       <header className="App-header">
@@ -119,19 +120,20 @@ function App() {
               margin: "0 auto",
             }}
           >
-            {/* {Object.keys(classesList).map((className) => {
-              // return (
-              //   <CharacterClass
-              //     className={className}
-              //     classRequirements={classesList[className]}
-              //     character={character}
-              //     isSelected={className === selectedClass}
-              //     onSelect={() => selectClass(className)}
-              //     key={className}
-              //   />
-              // );
-            })} */}
+            {Object.keys(classesList).map((className) => {
+              return (
+                <CharacterClass
+                  className={className}
+                  classRequirements={classesList[className]}
+                  character={attributes}
+                  isSelected={className === selectedClass}
+                  onSelect={() => selectClass(className)}
+                  key={className}
+                />
+              );
+            })}
           </div>
+          <h2>Points: {points}</h2>
           <h2>Attributes</h2>
           {Object.keys(attributes).map((attribute) => {
             return (
@@ -146,14 +148,16 @@ function App() {
             );
           })}
           <h2>Skills</h2>
-          {skillList.map((skill) => {
+          {skills.map((skill) => {
             return (
               <Skill
                 key={skill.name}
                 name={skill.name}
                 modifier={skill.attributeModifier}
                 modifierAmount={modifier(skill.attributeModifier)}
+                points={skill.points}
                 onIncrease={() => {
+                  console.log("being called");
                   increaseSkill(skill);
                 }}
                 onDecrease={() => {
